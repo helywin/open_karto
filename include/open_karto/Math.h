@@ -36,12 +36,13 @@ namespace karto
   const kt_double KT_180_PI     = 57.29577951308232087685;  // 180 / PI
 
   /**
-   * Lets define a small number!
+   * Lets define a small number! 用来比较double的阈值
    */
   const kt_double KT_TOLERANCE  = 1e-06;
 
   /**
      * Lets define max value of kt_int32s (int32_t) to use it to mark invalid scans
+     * 无效激光数据
      */
 
   const kt_int32s INVALID_SCAN = std::numeric_limits<kt_int32s>::max();
@@ -115,6 +116,7 @@ namespace karto
 
     /**
      * Clips a number to the specified minimum and maximum values.
+     * 限定在区域内
      * @param n number to be clipped
      * @param minValue minimum value
      * @param maxValue maximum value
@@ -176,6 +178,7 @@ namespace karto
 
     /**
      * Normalizes angle to be in the range of [-pi, pi]
+     * 角度转到-180～180
      * @param angle to be normalized
      * @return normalized angle
      */

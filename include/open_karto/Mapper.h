@@ -30,7 +30,7 @@ namespace karto
   // Listener classes
 
   /**
-   * Abstract class to listen to mapper general messages
+   * 消息监听
    */
   class MapperListener
   {
@@ -54,7 +54,7 @@ namespace karto
   };
 
   /**
-   * Abstract class to listen to mapper loop closure messages
+   * 监听回环检测消息
    */
   class MapperLoopClosureListener : public MapperListener
   {
@@ -80,7 +80,7 @@ namespace karto
   ////////////////////////////////////////////////////////////////////////////////////////
 
   /**
-   * Class for edge labels
+   * 边缘标记
    */
   class EdgeLabel
   {
@@ -107,14 +107,15 @@ namespace karto
   // A LinkInfo object contains the requisite information for the "spring"
   // that links two scans together--the pose difference and the uncertainty
   // (represented by a covariance matrix).
+  // 把两个不确定的扫描差异连接起来的”弹簧“所需要的消息
   class LinkInfo : public EdgeLabel
   {
   public:
     /**
      * Constructs a link between the given poses
-     * @param rPose1
-     * @param rPose2
-     * @param rCovariance
+     * @param rPose1 相关位置1
+     * @param rPose2 相关位置2
+     * @param rCovariance 协方差
      */
     LinkInfo(const Pose2& rPose1, const Pose2& rPose2, const Matrix3& rCovariance)
     {
@@ -131,6 +132,7 @@ namespace karto
   public:
     /**
      * Changes the link information to be the given parameters
+     * 更新参数
      * @param rPose1
      * @param rPose2
      * @param rCovariance
@@ -146,6 +148,7 @@ namespace karto
 
       // transform covariance into reference of first pose
       Matrix3 rotationMatrix;
+      // TODO: GetHeading做什么，为什么这样计算协方差
       rotationMatrix.FromAxisAngle(0, 0, 1, -rPose1.GetHeading());
 
       m_Covariance = rotationMatrix * rCovariance * rotationMatrix.Transpose();
@@ -203,6 +206,7 @@ namespace karto
 
   /**
    * Represents an object in a graph
+   * 图中的对象，用顶点表示
    */
   template<typename T>
   class Vertex
@@ -228,6 +232,7 @@ namespace karto
 
     /**
      * Gets edges adjacent to this vertex
+     * 获取连接该顶点的边
      * @return adjacent edges
      */
     inline const std::vector<Edge<T>*>& GetEdges() const
@@ -246,6 +251,7 @@ namespace karto
 
     /**
      * Gets a vector of the vertices adjacent to this vertex
+     * 获取临近的顶点
      * @return adjacent vertices
      */
     std::vector<Vertex<T>*> GetAdjacentVertices() const
@@ -291,6 +297,7 @@ namespace karto
 
   /**
    * Represents an edge in a graph
+   * 图里面的边
    */
   template<typename T>
   class Edge
@@ -298,8 +305,8 @@ namespace karto
   public:
     /**
      * Constructs an edge from the source to target vertex
-     * @param pSource
-     * @param pTarget
+     * @param pSource 起始
+     * @param pTarget 目标
      */
     Edge(Vertex<T>* pSource, Vertex<T>* pTarget)
       : m_pSource(pSource)
@@ -365,7 +372,7 @@ namespace karto
   private:
     Vertex<T>* m_pSource;
     Vertex<T>* m_pTarget;
-    EdgeLabel* m_pLabel;
+    EdgeLabel* m_pLabel;    // 边的标签
   };  // class Edge<T>
 
   ////////////////////////////////////////////////////////////////////////////////////////
@@ -374,6 +381,7 @@ namespace karto
 
   /**
    * Visitor class
+   * 访问者类，用来访问顶点
    */
   template<typename T>
   class Visitor
@@ -396,6 +404,7 @@ namespace karto
 
   /**
    * Graph traversal algorithm
+   * 图遍历算法
    */
   template<typename T>
   class GraphTraversal
@@ -438,6 +447,7 @@ namespace karto
 
   /**
    * Graph
+   * 图
    */
   template<typename T>
   class Graph
@@ -467,7 +477,8 @@ namespace karto
   public:
     /**
      * Adds and indexes the given vertex into the map using the given name
-     * @param rName
+     * 添加顶点
+     * @param rName 顶点名称
      * @param pVertex
      */
     inline void AddVertex(const Name& rName, Vertex<T>* pVertex)
@@ -477,6 +488,7 @@ namespace karto
 
     /**
      * Adds an edge to the graph
+     * 添加边
      * @param pEdge
      */
     inline void AddEdge(Edge<T>* pEdge)
@@ -486,6 +498,7 @@ namespace karto
 
     /**
      * Deletes the graph data
+     * 清除所有元素
      */
     void Clear()
     {
@@ -540,6 +553,7 @@ namespace karto
   ////////////////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////
 
+  // 广度搜索bfs
   template<typename T>
   class BreadthFirstTraversal : public GraphTraversal<T>
   {
@@ -568,6 +582,7 @@ namespace karto
      */
     virtual std::vector<T*> Traverse(Vertex<T>* pStartVertex, Visitor<T>* pVisitor)
     {
+      // 优先队列
       std::queue<Vertex<T>*> toVisit;
       std::set<Vertex<T>*> seenVertices;
       std::vector<Vertex<T>*> validVertices;
@@ -614,6 +629,7 @@ namespace karto
   ////////////////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////
 
+  // 临近激光访问者
   class NearScanVisitor : public Visitor<LocalizedRangeScan>
   {
   public:

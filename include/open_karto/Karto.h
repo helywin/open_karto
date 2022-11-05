@@ -80,6 +80,7 @@ namespace karto
 
   /**
    * Exception class. All exceptions thrown from Karto will inherit from this class or be of this class
+   * 异常类
    */
   class KARTO_EXPORT Exception
   {
