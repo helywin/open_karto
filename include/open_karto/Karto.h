@@ -49,25 +49,43 @@
 
 typedef kt_int32u kt_objecttype;
 
+// 因子图顶点类型
+// 没有
 const kt_objecttype ObjectType_None                         = 0x00000000;
+// 传感器
 const kt_objecttype ObjectType_Sensor                       = 0x00001000;
+// 传感器数据
 const kt_objecttype ObjectType_SensorData                   = 0x00002000;
+// 自定义数据
 const kt_objecttype ObjectType_CustomData                   = 0x00004000;
+// 混合数据
 const kt_objecttype ObjectType_Misc                         = 0x10000000;
 
+// 底盘
 const kt_objecttype ObjectType_Drive                        = ObjectType_Sensor | 0x01;
+// 激光测距模块
 const kt_objecttype ObjectType_LaserRangeFinder             = ObjectType_Sensor | 0x02;
+// 相机
 const kt_objecttype ObjectType_Camera                       = ObjectType_Sensor | 0x04;
 
+// 机器人位置
 const kt_objecttype ObjectType_DrivePose                    = ObjectType_SensorData | 0x01;
+// 激光扫描距离数据
 const kt_objecttype ObjectType_LaserRangeScan               = ObjectType_SensorData | 0x02;
+// 定位的距离扫描
 const kt_objecttype ObjectType_LocalizedRangeScan           = ObjectType_SensorData | 0x04;
+// 相机图像
 const kt_objecttype ObjectType_CameraImage                  = ObjectType_SensorData | 0x08;
+// 定位激光扫描和点
 const kt_objecttype ObjectType_LocalizedRangeScanWithPoints = ObjectType_SensorData | 0x16;
 
+// 头
 const kt_objecttype ObjectType_Header                       = ObjectType_Misc | 0x01;
+// 参数
 const kt_objecttype ObjectType_Parameters                   = ObjectType_Misc | 0x02;
+// 数据集信息
 const kt_objecttype ObjectType_DatasetInfo                  = ObjectType_Misc | 0x04;
+// 模块
 const kt_objecttype ObjectType_Module                       = ObjectType_Misc | 0x08;
 
 namespace karto
@@ -163,6 +181,7 @@ namespace karto
   /**
    * Subclass this class to make a non-copyable class (copy
    * constructor and assignment operator are private)
+   * 不可复制类型
    */
   class KARTO_EXPORT NonCopyable
   {
@@ -186,6 +205,7 @@ namespace karto
 
   /**
    * Singleton class ensures only one instance of T is created
+   * 单例类，类似智能指针
    */
   template <class T>
   class Singleton
@@ -242,6 +262,7 @@ namespace karto
 
   /**
    * Functor
+   * 函子
    */
   class KARTO_EXPORT Functor
   {
@@ -260,11 +281,13 @@ namespace karto
 
   /**
    * Type declaration of AbstractParameter vector
+   * 参数向量
    */
   typedef std::vector<AbstractParameter*> ParameterVector;
 
   /**
    * Parameter manager.
+   * 参数管理
    */
   class KARTO_EXPORT ParameterManager : public NonCopyable
   {
@@ -351,6 +374,7 @@ namespace karto
   // '/Test' -- no scope will be parsed to 'Test'
   // '/scope/Test' - 'scope' scope and 'Test' name
   // '/scope/name/Test' - 'scope/name' scope and 'Test' name
+  // 名字，包含域和不包含域
   //
   class Name
   {
@@ -587,6 +611,7 @@ namespace karto
 
   /**
    * Abstract base class for Karto objects.
+   * 对象
    */
   class KARTO_EXPORT Object : public NonCopyable
   {
@@ -759,6 +784,7 @@ namespace karto
 
   /**
    * Abstract base class for Karto modules.
+   * karto模块
    */
   class KARTO_EXPORT Module : public Object
   {
@@ -787,6 +813,7 @@ namespace karto
 
     /**
      * Process an Object
+     * 处理对象
      */
     virtual kt_bool Process(karto::Object*)
     {
@@ -804,6 +831,7 @@ namespace karto
 
   /**
    * Represents a size (width, height) in 2-dimensional real space.
+   * 尺寸类，包括长和宽
    */
   template<typename T>
   class Size2
@@ -925,6 +953,7 @@ namespace karto
 
   /**
    * Represents a vector (x, y) in 2-dimensional real space.
+   * 二维向量
    */
   template<typename T>
   class Vector2
@@ -1210,6 +1239,7 @@ namespace karto
 
   /**
    * Represents a vector (x, y, z) in 3-dimensional real space.
+   * 三维向量
    */
   template<typename T>
   class Vector3
@@ -1479,6 +1509,7 @@ namespace karto
 
   /**
    * Defines an orientation as a quaternion rotation using the positive Z axis as the zero reference.
+   * 四元数
    * <BR>
    * Q = w + ix + jy + kz <BR>
    * w = c_1 * c_2 * c_3 - s_1 * s_2 * s_3 <BR>
@@ -1613,6 +1644,7 @@ namespace karto
 
     /**
      * Converts this quaternion into Euler angles
+     * 四元数转欧拉角
      * Source: http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/index.htm
      * @param rYaw
      * @param rPitch
@@ -1650,6 +1682,7 @@ namespace karto
 
     /**
      * Set x,y,z,w values of the quaternion based on Euler angles.
+     * 欧拉角转四元数
      * Source: http://www.euclideanspace.com/maths/geometry/rotations/conversions/eulerToQuaternion/index.htm
      * @param yaw
      * @param pitch
@@ -1740,6 +1773,7 @@ namespace karto
   /**
    * Stores x, y, width and height that represents the location and size of a rectangle
    * (x, y) is at bottom left in mapper!
+   * 起始点在左下角的二维矩形
    */
   template<typename T>
   class Rectangle2
@@ -1954,6 +1988,7 @@ namespace karto
 
   /**
    * Defines a position (x, y) in 2-dimensional space and heading.
+   * 2D位姿
    */
   class Pose2
   {
@@ -2165,7 +2200,7 @@ namespace karto
 
   private:
     Vector2<kt_double> m_Position;
-
+    // 方向
     kt_double m_Heading;
   };  // Pose2
 
@@ -2184,6 +2219,7 @@ namespace karto
    * Values in Vector3 used to define position must have units of meters.
    * The value of angle when defining orientation in two dimensions must be in units of radians.
    * The definition of orientation in three dimensions uses quaternions.
+   * 三维位姿，包括3D位置和四元数
    */
   class Pose3
   {
@@ -2344,6 +2380,7 @@ namespace karto
 
   /**
    * Defines a Matrix 3 x 3 class.
+   * 3x3矩阵
    */
   class Matrix3
   {
@@ -2460,6 +2497,7 @@ namespace karto
     /**
      * Internal helper method for inverse matrix calculation
      * This code is lifted from the OgreMatrix3 class!!
+     * 快速求逆
      */
     kt_bool InverseFast(Matrix3& rkInverse, kt_double fTolerance = KT_TOLERANCE) const
     {
@@ -2625,6 +2663,7 @@ namespace karto
 
   /**
    * Defines a general Matrix class.
+   * 通用矩阵类
    */
   class Matrix
   {
@@ -2763,6 +2802,7 @@ namespace karto
 
   /**
    * Defines a bounding box in 2-dimensional real space.
+   * 二维范围框
    */
   class BoundingBox2
   {
@@ -2839,6 +2879,7 @@ namespace karto
 
     /**
      * Whether the given point is in the bounds of this box
+     * 判断是否在范围框内
      * @param rPoint
      * @return in bounds?
      */
@@ -2859,6 +2900,7 @@ namespace karto
 
   /**
    * Implementation of a Pose2 transform
+   * 2D变换
    */
   class Transform
   {
@@ -2885,6 +2927,7 @@ namespace karto
   public:
     /**
      * Transforms the pose according to this transform
+     * 变换
      * @param rSourcePose pose to transform from
      * @return transformed pose
      */
@@ -2898,6 +2941,7 @@ namespace karto
 
     /**
      * Inverse transformation of the pose according to this transform
+     * 反变换
      * @param rSourcePose pose to transform from
      * @return transformed pose
      */
@@ -2913,6 +2957,7 @@ namespace karto
   private:
     /**
      * Sets this to be the transformation from the first pose to the second pose
+     * 根据Pose1到Pose2计算变换
      * @param rPose1 first pose
      * @param rPose2 second pose
      */
@@ -2946,6 +2991,7 @@ namespace karto
 
   private:
     // pose transformation
+    // 平移
     Pose2 m_Transform;
 
     Matrix3 m_Rotation;
@@ -2977,6 +3023,7 @@ namespace karto
 
   /**
    * Abstract base class for Parameters
+   * 抽象参数
    */
   class AbstractParameter
   {
@@ -3043,18 +3090,21 @@ namespace karto
 
     /**
      * Get parameter value as string.
+     * 返回字符串
      * @return value as string
      */
     virtual const std::string GetValueAsString() const = 0;
 
     /**
      * Set parameter value from string.
+     * 从字符串值设置
      * @param rStringValue value as string
      */
     virtual void SetValueFromString(const std::string& rStringValue) = 0;
 
     /**
      * Clones the parameter
+     * 克隆
      * @return clone
      */
     virtual AbstractParameter* Clone() = 0;
@@ -3075,8 +3125,8 @@ namespace karto
     }
 
   private:
-    std::string m_Name;
-    std::string m_Description;
+    std::string m_Name;         // 名称
+    std::string m_Description;  // 描述
   };  // AbstractParameter
 
   ////////////////////////////////////////////////////////////////////////////////////////
@@ -3085,6 +3135,7 @@ namespace karto
 
   /**
    * Parameter class
+   * 参数类
    */
   template<typename T>
   class Parameter : public AbstractParameter
@@ -3092,6 +3143,7 @@ namespace karto
   public:
     /**
      * Parameter with given name and value
+     * 给定名字和值的参数
      * @param rName
      * @param value
      * @param pParameterManger
@@ -3255,9 +3307,11 @@ namespace karto
 
   /**
    * Parameter enum class
+   * 枚举参数
    */
   class ParameterEnum : public Parameter<kt_int32s>
   {
+    // 枚举
     typedef std::map<std::string, kt_int32s> EnumMap;
 
   public:
@@ -3335,6 +3389,7 @@ namespace karto
 
     /**
      * Defines the enum with the given name as having the given value
+     * 设置枚举的含义
      * @param value
      * @param rName
      */
@@ -3385,6 +3440,7 @@ namespace karto
 
   /**
    * Set of parameters
+   * 参数
    */
   class Parameters : public Object
   {
@@ -3423,6 +3479,7 @@ namespace karto
 
   /**
    * Abstract Sensor base class
+   * 传感器
    */
   class KARTO_EXPORT Sensor : public Object
   {
@@ -3490,12 +3547,14 @@ namespace karto
   private:
     /**
      * Sensor offset pose
+     * 偏移
      */
     Parameter<Pose2>* m_pOffsetPose;
   };  // Sensor
 
   /**
    * Type declaration of Sensor vector
+   * 传感器向量
    */
   typedef std::vector<Sensor*> SensorVector;
 
@@ -3505,11 +3564,13 @@ namespace karto
 
   /**
    * Type declaration of <Name, Sensor*> map
+   * 传感器map
    */
   typedef std::map<Name, Sensor*> SensorManagerMap;
 
   /**
    * Manages sensors
+   * 传感器管理
    */
   class KARTO_EXPORT SensorManager
   {
@@ -3538,6 +3599,7 @@ namespace karto
     /**
      * Registers a sensor by it's name. The Sensor name must be unique, if not sensor is not registered
      * unless override is set to true
+     * 注册传感器
      * @param pSensor sensor to register
      * @param override
      * @return true if sensor is registered with SensorManager, false if Sensor name is not unique
@@ -3560,6 +3622,7 @@ namespace karto
 
     /**
      * Unregisters the given sensor
+     * 取消注册传感器
      * @param pSensor sensor to unregister
      */
     void UnregisterSensor(Sensor* pSensor)
@@ -3580,6 +3643,7 @@ namespace karto
 
     /**
      * Gets the sensor with the given name
+     * 根据名字获取传感器
      * @param rName name of sensor
      * @return sensor
      */
@@ -3595,6 +3659,7 @@ namespace karto
 
     /**
      * Gets the sensor with the given name
+     * 根据名字获取传感器
      * @param rName name of sensor
      * @return sensor
      */
@@ -3608,6 +3673,7 @@ namespace karto
 
     /**
      * Gets all registered sensors
+     * 获取所有的传感器
      * @return vector of all registered sensors
      */
     SensorVector GetAllSensors()
@@ -3652,7 +3718,7 @@ namespace karto
 
   /**
    * Sensor that provides pose information relative to world coordinates.
-   *
+   * 提供相对世界坐标位姿态信息的传感器
    * The user can set the offset pose of the drive sensor.  If no value is provided by the user the default is no offset,
    * i.e, the sensor is initially at the world origin, oriented along the positive z axis.
    */
@@ -3850,6 +3916,7 @@ namespace karto
 
     /**
      * Sets this range finder sensor's angular resolution
+     * 设置激光雷达角分辨率
      * @param angularResolution
      */
     inline void SetAngularResolution(kt_double angularResolution)
@@ -3858,6 +3925,7 @@ namespace karto
       {
         m_pAngularResolution->SetValue(angularResolution);
       }
+      // 西科单线激光雷达
       else if (m_pType->GetValue() == LaserRangeFinder_Sick_LMS100)
       {
         if (math::DoubleEqual(angularResolution, math::DegreesToRadians(0.25)))
@@ -3899,6 +3967,7 @@ namespace karto
           throw Exception(stream.str());
         }
       }
+      // 北阳光电
       else if (m_pType->GetValue() == LaserRangeFinder_Hokuyo_UTM_30LX)
       {
         if (math::DoubleEqual(angularResolution, math::DegreesToRadians(0.25)))
@@ -3970,6 +4039,7 @@ namespace karto
 
     /**
      * Get point readings (potentially scale readings if given coordinate converter is not null)
+     * 获取激光点
      * @param pLocalizedRangeScan
      * @param pCoordinateConverter
      * @param ignoreThresholdPoints
@@ -4199,6 +4269,7 @@ namespace karto
 
   /**
    * Enumerated type for valid grid cell states
+   * 网格图中网格状态(占据图)
    */
   typedef enum
   {
@@ -4213,6 +4284,7 @@ namespace karto
 
   /**
    * The CoordinateConverter class is used to convert coordinates between world and grid coordinates
+   * 网格坐标和世界坐标变换类，不涉及旋转
    * In world coordinates 1.0 = 1 meter where 1 in grid coordinates = 1 pixel!
    * Default scale for coordinate converter is 20 that converters to 1 pixel = 0.05 meter
    */
@@ -4241,7 +4313,7 @@ namespace karto
     /**
      * Converts the point from world coordinates to grid coordinates
      * @param rWorld world coordinate
-     * @param flipY
+     * @param flipY 反转Y轴，左上角为原点
      * @return grid coordinate
      */
     inline Vector2<kt_int32s> WorldToGrid(const Vector2<kt_double>& rWorld, kt_bool flipY = false) const
@@ -4387,6 +4459,7 @@ namespace karto
 
   /**
    * Defines a grid class
+   * 网格类
    */
   template<typename T>
   class Grid
@@ -4396,7 +4469,7 @@ namespace karto
      * Creates a grid of given size and resolution
      * @param width
      * @param height
-     * @param resolution
+     * @param resolution 分辨率
      * @return grid pointer
      */
     static Grid* CreateGrid(kt_int32s width, kt_int32s height, kt_double resolution)
@@ -4520,6 +4593,7 @@ namespace karto
 
     /**
      * Gets the grid coordinate from an index
+     * 根据一维索引号返航网格xy坐标
      * @param index
      * @return grid coordinate
      */
@@ -4681,6 +4755,7 @@ namespace karto
     /**
      * Increments all the grid cells from (x0, y0) to (x1, y1);
      * if applicable, apply f to each cell traced
+     * 根据两个网格位置，把两个网格中间的连线的格子计算出来,每个格子执行函子
      * @param x0
      * @param y0
      * @param x1
@@ -4689,14 +4764,17 @@ namespace karto
      */
     void TraceLine(kt_int32s x0, kt_int32s y0, kt_int32s x1, kt_int32s y1, Functor* f = NULL)
     {
+      // 是否陡峭,大于45度
       kt_bool steep = abs(y1 - y0) > abs(x1 - x0);
       if (steep)
       {
+        // xy互换
         std::swap(x0, y0);
         std::swap(x1, y1);
       }
       if (x0 > x1)
       {
+        // 两点互换, 小的在前
         std::swap(x0, x1);
         std::swap(y0, y1);
       }
@@ -4783,6 +4861,7 @@ namespace karto
 
   /**
    * For making custom data
+   * 用来创建自定义数据
    */
   class CustomData : public Object
   {
@@ -4836,6 +4915,7 @@ namespace karto
 
   /**
    * SensorData is a base class for all sensor data
+   * 传感器数据
    */
   class KARTO_EXPORT SensorData : public Object
   {
@@ -4862,6 +4942,7 @@ namespace karto
 
     /**
      * Sets sensor data id
+     * 传感器数据id
      * @param stateId id
      */
     inline void SetStateId(kt_int32s stateId)
@@ -4871,6 +4952,7 @@ namespace karto
 
     /**
      * Gets sensor unique id
+     * 唯一id
      * @return unique id
      */
     inline kt_int32s GetUniqueId() const
@@ -4952,24 +5034,31 @@ namespace karto
   private:
     /**
      * ID unique to individual sensor
+     * 传感器id
      */
     kt_int32s m_StateId;
 
     /**
      * ID unique across all sensor data
+     * 数据id
      */
     kt_int32s m_UniqueId;
 
     /**
      * Sensor that created this sensor data
+     * 传感器名称
      */
     Name m_SensorName;
 
     /**
      * Time the sensor data was created
+     * 时戳
      */
     kt_double m_Time;
 
+    /**
+     * 自定义数据
+     */
     CustomDataVector m_CustomData;
   };
 
@@ -4984,6 +5073,7 @@ namespace karto
 
   /**
    * LaserRangeScan representing the range readings from a laser range finder sensor.
+   * 激光雷达数据
    */
   class LaserRangeScan : public SensorData
   {
@@ -5030,6 +5120,7 @@ namespace karto
   public:
     /**
      * Gets the range readings of this scan
+     * 获取当前扫描的数据
      * @return range readings of this scan
      */
     inline kt_double* GetRangeReadings() const
