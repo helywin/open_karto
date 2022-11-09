@@ -5120,7 +5120,7 @@ namespace karto
   public:
     /**
      * Gets the range readings of this scan
-     * 获取当前扫描的数据
+     * 获取当前扫描的数据，指针形式
      * @return range readings of this scan
      */
     inline kt_double* GetRangeReadings() const
@@ -5128,6 +5128,9 @@ namespace karto
       return m_pRangeReadings;
     }
 
+    /**
+     * 获取扫描向量,多个数据
+     */
     inline RangeReadingsVector GetRangeReadingsVector() const
     {
       return RangeReadingsVector(m_pRangeReadings, m_pRangeReadings + m_NumberOfRangeReadings);
@@ -5178,6 +5181,7 @@ namespace karto
 
     /**
      * Gets the laser range finder sensor that generated this scan
+     * 获取生成该数据的激光传感器
      * @return laser range finder sensor of this scan
      */
     inline LaserRangeFinder* GetLaserRangeFinder() const
@@ -5187,6 +5191,7 @@ namespace karto
 
     /**
      * Gets the number of range readings
+     * 获取距离数据个数
      * @return number of range readings
      */
     inline kt_int32u GetNumberOfRangeReadings() const
@@ -5209,6 +5214,7 @@ namespace karto
 
   /**
    * DrivePose representing the pose value of a drive sensor.
+   * 驾驶位姿，传感器数据，相当于里程计
    */
   class DrivePose : public SensorData
   {
@@ -5273,6 +5279,7 @@ namespace karto
    * in a two-dimensional space and position information. The odometer position is the position
    * reported by the robot when the range data was recorded. The corrected position is the position
    * calculated by the mapper (or localizer)
+   * 用来建图定位的激光数据
    */
   class LocalizedRangeScan : public LaserRangeScan
   {
@@ -5327,6 +5334,8 @@ namespace karto
      * additional sensor data and any context information it has.  If the pose has not been corrected,
      * a call to this method returns the same pose as GetOdometricPose().
      * @return corrected pose
+     * 纠正后的位置，通常是里程计位置不准，通过建图定位纠正后的位置。通常通过额外的传感器和上下文来设置纠正位置。如果没被
+     * 纠正就返回里程计数据
      */
     inline const Pose2& GetCorrectedPose() const
     {
@@ -5346,6 +5355,7 @@ namespace karto
 
     /**
      * Gets barycenter of point readings
+     * 获取读取的点的重心，也就是均值点
      */
     inline const Pose2& GetBarycenterPose() const
     {
@@ -5363,12 +5373,14 @@ namespace karto
 
     /**
      * Gets barycenter if the given parameter is true, otherwise returns the scanner pose
+     * 如果参数为true，获取重心，否则返回传感器位置
      * @param useBarycenter
      * @return barycenter if parameter is true, otherwise scanner pose
      */
     inline Pose2 GetReferencePose(kt_bool useBarycenter) const
     {
       boost::shared_lock<boost::shared_mutex> lock(m_Lock);
+      // 判断数据是否修改过
       if (m_IsDirty)
       {
         // throw away constness and do an update!
@@ -5391,6 +5403,7 @@ namespace karto
 
     /**
      * Computes the robot pose given the corrected scan pose
+     * 根据纠正的激光位置设置机器人位置
      * @param rScanPose pose of the sensor
      */
     void SetSensorPose(const Pose2& rScanPose)
@@ -5465,6 +5478,7 @@ namespace karto
     /**
      * Compute point readings based on range readings
      * Only range readings within [minimum range; range threshold] are returned
+     * 更新数据
      */
     virtual void Update()
     {
@@ -5541,43 +5555,51 @@ namespace karto
   private:
     /**
      * Odometric pose of robot
+     * 里程位置
      */
     Pose2 m_OdometricPose;
 
     /**
      * Corrected pose of robot calculated by mapper (or localizer)
+     * 纠正位置
      */
     Pose2 m_CorrectedPose;
 
   protected:
     /**
      * Average of all the point readings
+     * 点的均值
      */
     Pose2 m_BarycenterPose;
 
     /**
      * Vector of point readings
+     * 点的向量
      */
     PointVectorDouble m_PointReadings;
 
     /**
      * Vector of unfiltered point readings
+     * 未滤波的点的向量
      */
     PointVectorDouble m_UnfilteredPointReadings;
 
     /**
      * Bounding box of localized range scan
+     * 定位激光扫描的大小框
      */
     BoundingBox2 m_BoundingBox;
 
     /**
      * Internal flag used to update point readings, barycenter and bounding box
+     * 数据是否需要更新
      */
     kt_bool m_IsDirty;
   };  // LocalizedRangeScan
 
   /**
    * Type declaration of LocalizedRangeScan vector
+   * 定位激光扫描向量
    */
   typedef std::vector<LocalizedRangeScan*> LocalizedRangeScanVector;
 
@@ -5587,6 +5609,7 @@ namespace karto
 
   /**
    * The LocalizedRangeScanWithPoints is an extension of the LocalizedRangeScan with precomputed points.
+   * 扩展的LocalizedRangeScan数据，加上了预先计算的点
    */
   class LocalizedRangeScanWithPoints : public LocalizedRangeScan
   {
@@ -5687,6 +5710,9 @@ namespace karto
 
   class OccupancyGrid;
 
+  /**
+   * 占据图单元格更新
+   */
   class KARTO_EXPORT CellUpdater : public Functor
   {
   public:
@@ -5712,6 +5738,7 @@ namespace karto
 
   /**
    * Occupancy grid definition. See GridStates for possible grid values.
+   * 占据格定义
    */
   class OccupancyGrid : public Grid<kt_int8u>
   {
@@ -5721,10 +5748,10 @@ namespace karto
   public:
     /**
      * Constructs an occupancy grid of given size
-     * @param width
-     * @param height
-     * @param rOffset
-     * @param resolution
+     * @param width 宽度
+     * @param height 高度
+     * @param rOffset 偏移
+     * @param resolution 分辨率
      */
     OccupancyGrid(kt_int32s width, kt_int32s height, const Vector2<kt_double>& rOffset, kt_double resolution)
       : Grid<kt_int8u>(width, height)
@@ -5763,6 +5790,7 @@ namespace karto
   public:
     /**
      * Create an occupancy grid from the given scans using the given resolution
+     * 根据给定的扫描创建占据图
      * @param rScans
      * @param resolution
      */
@@ -5784,6 +5812,7 @@ namespace karto
 
     /**
      * Make a clone
+     * 克隆
      * @return occupancy grid clone
      */
     OccupancyGrid* Clone() const
@@ -5803,6 +5832,7 @@ namespace karto
 
     /**
      * Check if grid point is free
+     * 检查点是否空
      * @param rPose
      * @return whether the cell at the given point is free space
      */
@@ -5820,6 +5850,7 @@ namespace karto
     /**
      * Casts a ray from the given point (up to the given max range)
      * and returns the distance to the closest obstacle
+     * 根据位姿和给定的最大距离计算最近的障碍距离
      * @param rPose2
      * @param maxRange
      * @return distance to closest obstacle
