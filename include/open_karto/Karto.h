@@ -5917,6 +5917,7 @@ namespace karto
   protected:
     /**
      * Get cell hit grid
+     * 获取单元格击中的次数
      * @return Grid<kt_int32u>*
      */
     virtual Grid<kt_int32u>* GetCellHitsCounts()
@@ -5926,6 +5927,7 @@ namespace karto
 
     /**
      * Get cell pass grid
+     * 获取单元格通过的次数
      * @return Grid<kt_int32u>*
      */
     virtual Grid<kt_int32u>* GetCellPassCounts()
@@ -5936,6 +5938,7 @@ namespace karto
   protected:
     /**
      * Calculate grid dimensions from localized range scans
+     * 从局部激光扫描数据计算单元格维度
      * @param rScans
      * @param resolution
      * @param rWidth
@@ -5964,6 +5967,7 @@ namespace karto
 
     /**
      * Create grid using scans
+     * 使用激光数据数组创建网格
      * @param rScans
      */
     virtual void CreateFromScans(const LocalizedRangeScanVector& rScans)
@@ -5986,6 +5990,7 @@ namespace karto
     /**
      * Adds the scan's information to this grid's counters (optionally
      * update the grid's cells' occupancy status)
+     * 把激光数据添加到网格计数器里面，更新网格单元的占据状态
      * @param pScan
      * @param doUpdate whether to update the grid's cell's occupancy status
      * @return returns false if an endpoint fell off the grid, otherwise true
@@ -6042,10 +6047,11 @@ namespace karto
     /**
      * Traces a beam from the start position to the end position marking
      * the bookkeeping arrays accordingly.
-     * @param rWorldFrom start position of beam
-     * @param rWorldTo end position of beam
-     * @param isEndPointValid is the reading within the range threshold?
-     * @param doUpdate whether to update the cells' occupancy status immediately
+     * 追踪一个从开始位置到结束位置的光束的标记 相应地标记记录数组。
+     * @param rWorldFrom start position of beam 光束的起始位置
+     * @param rWorldTo end position of beam 光束的终止位置
+     * @param isEndPointValid is the reading within the range threshold? 判断点是否在阈值范围内
+     * @param doUpdate whether to update the cells' occupancy status immediately 是否需要立即更新占据图单元状态
      * @return returns false if an endpoint fell off the grid, otherwise true
      */
     virtual kt_bool RayTrace(const Vector2<kt_double>& rWorldFrom,
@@ -6087,6 +6093,7 @@ namespace karto
 
     /**
      * Updates a single cell's value based on the given counters
+     * 给定计数值，更新单个单元格
      * @param pCell
      * @param cellPassCnt
      * @param cellHitCnt
@@ -6110,6 +6117,7 @@ namespace karto
 
     /**
      * Update the grid based on the values in m_pCellHitsCnt and m_pCellPassCnt
+     * 更新整个占据网格图
      */
     virtual void Update()
     {
@@ -6132,6 +6140,7 @@ namespace karto
 
     /**
      * Resizes the grid (deletes all old data)
+     * 重新设置网格大小，删除所有旧的数据
      * @param width
      * @param height
      */
@@ -6186,6 +6195,7 @@ namespace karto
   /**
    * Dataset info
    * Contains title, author and other information about the dataset
+   * 数据集信息，包含标题，作者和其他数据集信息
    */
   class DatasetInfo : public Object
   {
@@ -6259,6 +6269,7 @@ namespace karto
   /**
    * Karto dataset. Stores LaserRangeFinders and LocalizedRangeScans and manages memory of allocated LaserRangeFinders
    * and LocalizedRangeScans
+   * Karto数据集。存储单点激光数据和定位激光数据，管理其两者的内存分配
    */
   class Dataset
   {
@@ -6282,12 +6293,14 @@ namespace karto
   public:
     /**
      * Adds object to this dataset
+     * 给数据集添加对象
      * @param pObject
      */
     void Add(Object* pObject)
     {
       if (pObject != NULL)
       {
+        // 传感器
         if (dynamic_cast<Sensor*>(pObject))
         {
           Sensor* pSensor = dynamic_cast<Sensor*>(pObject);
@@ -6300,15 +6313,18 @@ namespace karto
 
           m_Objects.push_back(pObject);
         }
+        // 传感器数据
         else if (dynamic_cast<SensorData*>(pObject))
         {
           SensorData* pSensorData = dynamic_cast<SensorData*>(pObject);
           m_Objects.push_back(pSensorData);
         }
+        // 数据集信息
         else if (dynamic_cast<DatasetInfo*>(pObject))
         {
           m_pDatasetInfo = dynamic_cast<DatasetInfo*>(pObject);
         }
+        // 其他
         else
         {
           m_Objects.push_back(pObject);
@@ -6318,6 +6334,7 @@ namespace karto
 
     /**
      * Get sensor states
+     * 获取传感器状态
      * @return sensor state
      */
     inline const ObjectVector& GetObjects() const
@@ -6327,6 +6344,7 @@ namespace karto
 
     /**
      * Get dataset info
+     * 获取数据集信息
      * @return dataset info
      */
     inline DatasetInfo* GetDatasetInfo()
@@ -6336,6 +6354,7 @@ namespace karto
 
     /**
      * Delete all stored data
+     * 删除所有存储的数据
      */
     virtual void Clear()
     {
@@ -6371,6 +6390,7 @@ namespace karto
   /**
    * An array that can be resized as long as the size
    * does not exceed the initial capacity
+   * 动态数组
    */
   class LookupArray
   {
@@ -6499,6 +6519,15 @@ namespace karto
    * calculated.  So when calculating the particle probability at a specific angle, the index table is used
    * to look up probability in probability grid!
    *
+   * 创建网格中不同角度的激光点索引
+   * 对应每个角度，每个点都计算网格索引
+   * 这个是为了加快寻找定位扫描的最佳的角度/位置
+   *
+   * 在建图和定位使用得最多
+   *
+   * 在定位器中，这大大加快了计算可能位置的速度。 对于每个粒子，计算概率。
+   * 范围扫描是相同的，但是计算了所有可能角度的所有网格索引。
+   * 所以在计算特定角度的粒子概率时，就是用索引表在概率格中查找概率！
    */
   template<typename T>
   class GridIndexLookup
@@ -6527,6 +6556,7 @@ namespace karto
   public:
     /**
      * Gets the lookup array for a particular angle index
+     * 返回指定角度的查找数组
      * @param index
      * @return lookup array
      */
@@ -6539,6 +6569,7 @@ namespace karto
 
     /**
      * Get angles
+     * 获取角度
      * @return std::vector<kt_double>& angles
      */
     const std::vector<kt_double>& GetAngles() const
@@ -6548,6 +6579,7 @@ namespace karto
 
     /**
      * Compute lookup table of the points of the given scan for the given angular space
+     * 计算在给定角度空间的给定扫描的查找表的点
      * @param pScan the scan
      * @param angleCenter
      * @param angleOffset computes lookup arrays for the angles within this offset around angleStart
@@ -6573,6 +6605,7 @@ namespace karto
       Transform transform(pScan->GetSensorPose());
 
       Pose2Vector localPoints;
+      // 把每个点转换到传感器坐标系下面去
       const_forEach(PointVectorDouble, &rPointReadings)
       {
         // do inverse transform to get points in local coordinates
@@ -6582,10 +6615,12 @@ namespace karto
 
       //////////////////////////////////////////////////////
       // create lookup array for different angles
+      // 建立查找数组
       kt_double angle = 0.0;
       kt_double startAngle = angleCenter - angleOffset;
       for (kt_int32u angleIndex = 0; angleIndex < nAngles; angleIndex++)
       {
+        // 计算角度
         angle = startAngle + angleIndex * angleResolution;
         ComputeOffsets(angleIndex, angle, localPoints, pScan);
       }
@@ -6595,9 +6630,10 @@ namespace karto
   private:
     /**
      * Compute lookup value of points for given angle
-     * @param angleIndex
-     * @param angle
-     * @param rLocalPoints
+     * 计算给定角度的查找值
+     * @param angleIndex 角度索引编号
+     * @param angle 角度
+     * @param rLocalPoints 传感器坐标系下的点
      */
     void ComputeOffsets(kt_int32u angleIndex, kt_double angle, const Pose2Vector& rLocalPoints, LocalizedRangeScan* pScan)
     {
@@ -6606,7 +6642,7 @@ namespace karto
 
       // set up point array by computing relative offsets to points readings
       // when rotated by given angle
-
+      // 当旋转给定角度后，通过计算相对已有点的相对偏移设置点数组
       const Vector2<kt_double>& rGridOffset = m_pGrid->GetCoordinateConverter()->GetOffset();
 
       kt_double cosine = cos(angle);
@@ -6622,6 +6658,7 @@ namespace karto
       {
         const Vector2<kt_double>& rPosition = iter->GetPosition();
 
+        // 标记错误的点数据
         if (std::isnan(pScan->GetRangeReadings()[readingIndex]) || std::isinf(pScan->GetRangeReadings()[readingIndex]))
         {
           pAngleIndexPointer[readingIndex] = INVALID_SCAN;
@@ -6631,14 +6668,17 @@ namespace karto
 
 
         // counterclockwise rotation and that rotation is about the origin (0, 0).
+        // 逆时针旋转
         Vector2<kt_double> offset;
         offset.SetX(cosine * rPosition.GetX() - sine * rPosition.GetY());
         offset.SetY(sine * rPosition.GetX() + cosine * rPosition.GetY());
 
         // have to compensate for the grid offset when getting the grid index
+        // 当获取网格索引时必须补偿网格偏移
         Vector2<kt_int32s> gridPoint = m_pGrid->WorldToGrid(offset + rGridOffset);
 
         // use base GridIndex to ignore ROI
+        // 使用基准的网格索引忽略ROI
         kt_int32s lookupIndex = m_pGrid->Grid<T>::GridIndex(gridPoint, false);
 
         pAngleIndexPointer[readingIndex] = lookupIndex;
@@ -6650,6 +6690,7 @@ namespace karto
 
     /**
      * Sets size of lookup table (resize if not big enough)
+     * 设置查找表的大小
      * @param size
      */
     void SetSize(kt_int32u size)
@@ -6678,6 +6719,7 @@ namespace karto
 
     /**
      * Delete the arrays
+     * 删除数组
      */
     void DestroyArrays()
     {
@@ -6706,6 +6748,7 @@ namespace karto
   ////////////////////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////////////////////
 
+  // Pose3D转Pose2D
   inline Pose2::Pose2(const Pose3& rPose)
     : m_Position(rPose.GetPosition().GetX(), rPose.GetPosition().GetY())
   {
