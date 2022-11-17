@@ -665,6 +665,7 @@ namespace karto
 
   /**
    * Graph for graph SLAM algorithm
+   * SLAM算法图
    */
   class KARTO_EXPORT MapperGraph : public Graph<LocalizedRangeScan>
   {
@@ -684,6 +685,7 @@ namespace karto
   public:
     /**
      * Adds a vertex representing the given scan to the graph
+     * 添加一个表示给定扫描的顶点
      * @param pScan
      */
     void AddVertex(LocalizedRangeScan* pScan);
@@ -691,6 +693,7 @@ namespace karto
     /**
      * Creates an edge between the source scan vertex and the target scan vertex if it
      * does not already exist; otherwise return the existing edge
+     * 如果边不存在，创建一条源扫描顶点和目标扫描顶点的边。不然就返回已经有的边
      * @param pSourceScan
      * @param pTargetScan
      * @param rIsNewEdge set to true if the edge is new
@@ -702,6 +705,7 @@ namespace karto
 
     /**
      * Link scan to last scan and nearby chains of scans
+     * 把当前scan连接到最新的一次scan，和临近的一系列scans
      * @param pScan
      * @param rCovariance uncertainty of match
      */
@@ -709,6 +713,7 @@ namespace karto
 
     /**
      * Tries to close a loop using the given scan with the scans from the given device
+     * 使用给定的scan和给定的设备尝试闭环
      * @param pScan
      * @param rSensorName
      */
@@ -716,6 +721,7 @@ namespace karto
 
     /**
      * Find "nearby" (no further than given distance away) scans through graph links
+     * 通过图连接寻找邻近（不会超过给定的距离）扫描
      * @param pScan
      * @param maxDistance
      */
@@ -723,6 +729,7 @@ namespace karto
 
     /**
      * Gets the graph's scan matcher
+     * 获取图的扫描匹配器
      * @return scan matcher
      */
     inline ScanMatcher* GetLoopScanMatcher() const
@@ -733,6 +740,7 @@ namespace karto
   private:
     /**
      * Gets the vertex associated with the given scan
+     * 获取和给定scan关联的顶点
      * @param pScan
      * @return vertex of scan
      */
@@ -743,6 +751,7 @@ namespace karto
 
     /**
      * Finds the closest scan in the vector to the given pose
+     * 在向量中根据给定的位姿寻找最接近的的扫描
      * @param rScans
      * @param rPose
      */
@@ -750,6 +759,7 @@ namespace karto
 
     /**
      * Adds an edge between the two scans and labels the edge with the given mean and covariance
+     * 在两个扫描之间添加边，用给定的均值方差标记边
      * @param pFromScan
      * @param pToScan
      * @param rMean
@@ -762,6 +772,7 @@ namespace karto
 
     /**
      * Find nearby chains of scans and link them to scan if response is high enough
+     * 寻找邻近扫描链，如果响应足够高，把他们连在一起
      * @param pScan
      * @param rMeans
      * @param rCovariances
@@ -770,6 +781,7 @@ namespace karto
 
     /**
      * Link the chain of scans to the given scan by finding the closest scan in the chain to the given scan
+     * 通过寻找一串扫描中和给定扫描最接近的扫描来和给定扫描进行连接
      * @param rChain
      * @param pScan
      * @param rMean
@@ -782,6 +794,7 @@ namespace karto
 
     /**
      * Find chains of scans that are close to given scan
+     * 寻找和给定扫描接近的一串扫描
      * @param pScan
      * @return chains of scans
      */
@@ -789,6 +802,7 @@ namespace karto
 
     /**
      * Compute mean of poses weighted by covariances
+     * 通过协方差计算带权重的位姿的均值, TODO: 通过状态分布计算？
      * @param rMeans
      * @param rCovariances
      * @return weighted mean
@@ -798,6 +812,7 @@ namespace karto
     /**
      * Tries to find a chain of scan from the given device starting at the
      * given scan index that could possibly close a loop with the given scan
+     * 试图从给定的设备中找到一个从给定的扫描索引开始的扫描链，该链有可能与给定的扫描形成一个回环。
      * @param pScan
      * @param rSensorName
      * @param rStartNum
@@ -809,6 +824,7 @@ namespace karto
 
     /**
      * Optimizes scan poses
+     * 优化扫描位姿
      */
     void CorrectPoses();
 
@@ -835,6 +851,7 @@ namespace karto
 
   /**
    * Graph optimization algorithm
+   * 图优化算法
    */
   class ScanSolver
   {
@@ -861,17 +878,20 @@ namespace karto
   public:
     /**
      * Solve!
+     * 解算
      */
     virtual void Compute() = 0;
 
     /**
      * Get corrected poses after optimization
+     * 优化后得到纠正后的位姿
      * @return optimized poses
      */
     virtual const IdPoseVector& GetCorrections() const = 0;
 
     /**
      * Adds a node to the solver
+     * 把一个节点添加到解算器
      */
     virtual void AddNode(Vertex<LocalizedRangeScan>* /*pVertex*/)
     {
@@ -879,6 +899,7 @@ namespace karto
 
     /**
      * Removes a node from the solver
+     * 把一个节点从解算器中去除
      */
     virtual void RemoveNode(kt_int32s /*id*/)
     {
@@ -886,6 +907,7 @@ namespace karto
 
     /**
      * Adds a constraint to the solver
+     * 添加一个约束到解算器
      */
     virtual void AddConstraint(Edge<LocalizedRangeScan>* /*pEdge*/)
     {
@@ -893,6 +915,7 @@ namespace karto
 
     /**
      * Removes a constraint from the solver
+     * 移除一个约束从解算器
      */
     virtual void RemoveConstraint(kt_int32s /*sourceId*/, kt_int32s /*targetId*/)
     {
@@ -900,6 +923,7 @@ namespace karto
 
     /**
      * Resets the solver
+     * 重置解算器
      */
     virtual void Clear() {};
   };  // ScanSolver
@@ -910,6 +934,7 @@ namespace karto
 
   /**
    * Implementation of a correlation grid used for scan matching
+   * 用于扫描匹配的相关网格的实现
    */
   class CorrelationGrid : public Grid<kt_int8u>
   {
