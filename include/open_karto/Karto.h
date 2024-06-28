@@ -98,7 +98,7 @@ namespace karto
 
   /**
    * Exception class. All exceptions thrown from Karto will inherit from this class or be of this class
-   * 异常类
+   * 异常类。所有从Karto抛出的异常都将继承自这个类或是这个类
    */
   class KARTO_EXPORT Exception
   {
@@ -2219,7 +2219,11 @@ namespace karto
    * Values in Vector3 used to define position must have units of meters.
    * The value of angle when defining orientation in two dimensions must be in units of radians.
    * The definition of orientation in three dimensions uses quaternions.
-   * 三维位姿，包括3D位置和四元数
+   * 定义三维空间中的位置和方向。
+   * Karto使用右手坐标系，其中X，Y是2-D地平面，X是向前的，Y是向左的。
+   * 用于定义位置的Vector3中的值必须以米为单位。
+   * 在二维中定义方向时的角度值必须以弧度为单位。
+   * 在三维中定义方向使用四元数。
    */
   class Pose3
   {
@@ -2425,6 +2429,7 @@ namespace karto
 
     /**
      * Sets this matrix to be the rotation matrix of rotation around given axis
+     * 设置该矩阵为绕给定轴的旋转矩阵
      * @param x x-coordinate of axis
      * @param y y-coordinate of axis
      * @param z z-coordinate of axis
